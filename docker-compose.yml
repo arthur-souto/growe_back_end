@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: growe-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: growe_db
+      POSTGRES_USER: growe_dev
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-1234}
+    ports:
+      - "5432:5432"
+    volumes:
+      - growe-db-data:/var/lib/postgresql/data
+
+#  api:
+#    build: .
+#    container_name: growe-backend
+#    restart: on-failure
+#    depends_on:
+#      db:
+#        condition: service_healthy
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/growe_db
+#      - SPRING_DATASOURCE_USERNAME=growe_dev
+#      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-1234}
+#      - JWT_PUBLIC_KEY=file:/app/certs/public.pem
+#      - JWT_PRIVATE_KEY=file:/app/certs/private_pkcs8.pem
+#    volumes:
+#      - ./certs:/app/certs:ro
+
+volumes:
+  growe-db-data:
