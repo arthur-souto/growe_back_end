@@ -3,7 +3,7 @@ VALUES (
            gen_random_uuid(),
            'Administrador Growe',
            'arthurtavaressouto@gmail.com',
-           '$2a$10$8.73pUuD0T4UInuG4mS0Ie3SWh0S5.1tV8G2S.KpHvV1v0y.eC676',
+           '$2a$12$EiVbJUMtHztdLXtPd6Ch1u64xhPCJJeFMbcIZot4nI/QxzQ2cRZNe',
            'ADMIN',
            NOW()
        );

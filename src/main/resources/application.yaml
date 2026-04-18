@@ -19,3 +19,11 @@ jwt:
     key: ${JWT_PUBLIC_KEY:file:certs/public.pem}
   private:
     key: ${JWT_PRIVATE_KEY:file:certs/private_pkcs8.pem}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs

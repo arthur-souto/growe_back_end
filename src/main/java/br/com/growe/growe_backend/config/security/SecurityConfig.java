@@ -1,17 +1,20 @@
-package br.com.growe.growe_backend.config;
+package br.com.growe.growe_backend.config.security;
 
+import br.com.growe.growe_backend.service.CustomUserDetails;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.proc.SecurityContext;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,8 +37,10 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
+  private final CustomUserDetails customUserDetails;
 
   @Value("${jwt.public.key}")
   private RSAPublicKey rsaPublicKey;
@@ -50,8 +55,17 @@ public class SecurityConfig {
         .cors(Customizer.withDefaults())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/v1/users/register").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/v1/auth/sign-in").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/v1/users/sign-up").permitAll()
+            .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+            .requestMatchers("/api/v1/rh/**").hasAnyRole("ADMIN", "RH")
+            .requestMatchers("/api/v1/employees/**").hasAnyRole("ADMIN", "RH", "EMPLOYEE")
+            .requestMatchers(
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/v3/api-docs/**",
+                "/v3/api-docs.yaml"
+            ).permitAll()
             .anyRequest().authenticated()
         )
         .oauth2ResourceServer(oAuth2 -> oAuth2
@@ -63,10 +77,23 @@ public class SecurityConfig {
   }
 
   @Bean
+  public DaoAuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+    authProvider.setUserDetailsService(customUserDetails);
+    authProvider.setPasswordEncoder(passwordEncoder());
+    return authProvider;
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager() {
+    return new ProviderManager(authenticationProvider());
+  }
+
+  @Bean
   public JwtEncoder jwtEncoder() {
     JWK jwk = new RSAKey.Builder(this.rsaPublicKey).privateKey(rsaPrivateKey).build();
-    ImmutableJWKSet<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
-    return new NimbusJwtEncoder(jwks);
+    ImmutableJWKSet<SecurityContext> woks = new ImmutableJWKSet<>(new JWKSet(jwk));
+    return new NimbusJwtEncoder(woks);
   }
 
   @Bean
@@ -107,10 +134,4 @@ public class SecurityConfig {
     source.registerCorsConfiguration("/**", configuration);
     return source;
   }
-
-  @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-    return config.getAuthenticationManager();
-  }
-
 }
