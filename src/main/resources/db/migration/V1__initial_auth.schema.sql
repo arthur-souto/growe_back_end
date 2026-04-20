@@ -9,7 +9,7 @@ CREATE TABLE users(
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP,
 
-    CONSTRAINT ck_role CHECK ( role IN ('ADMIN', 'EMPLOYEE', 'RH') )
+    CONSTRAINT ck_role CHECK ( role IN ('ADMIN', 'EMPLOYEE', 'RH', 'MANAGER', 'GUEST') )
 );
 
 CREATE INDEX idx_users_email ON users(email);

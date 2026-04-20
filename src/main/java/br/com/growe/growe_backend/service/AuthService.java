@@ -1,8 +1,8 @@
 package br.com.growe.growe_backend.service;
 
 import br.com.growe.growe_backend.config.security.UserPrincipal;
-import br.com.growe.growe_backend.dtos.SignInRequest;
-import br.com.growe.growe_backend.dtos.SignInResponse;
+import br.com.growe.growe_backend.dtos.request.SignInRequest;
+import br.com.growe.growe_backend.dtos.response.SignInResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

@@ -1,35 +1,43 @@
-#  Growe Backend | Security-First API
-> Infraestrutura robusta de autenticação e gestão de dados, construída com Spring Boot 3 e arquitetura orientada a serviços.
+# Growe Platform
 
-Este é o core da plataforma **Growe**, uma API robusta focada em segurança, utilizando o padrão **OAuth2 Resource Server** com chaves assimétricas (RSA) e persistência em PostgreSQL.
+Growe is a professional platform designed to empower users with secure, efficient tools for personal and professional growth. Visit our landing page at [usegrowe.com.br](https://usegrowe.com.br) for more information.
 
-##  Stack Tecnológica
+<p align="center">
+  <img src="docs/page.png" alt="Growe Landing Page" style="max-width: 100%; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" />
+</p>
+
+# Growe Backend | Security-First API
+> Robust authentication and data management infrastructure, built with Spring Boot 3 and service-oriented architecture.
+
+This is the core of the **Growe** platform, a robust API focused on security, using the **OAuth2 Resource Server** standard with asymmetric keys (RSA) and persistence in PostgreSQL.
+
+## Technological Stack
 * **Java 21** (LTS)
 * **Spring Boot 3.x**
 * **Spring Security & OAuth2 Resource Server**
-* **Nimbus JOSE + JWT** (Criptografia e assinatura de tokens)
-* **PostgreSQL 16** (Base de dados)
-* **Flyway** (Gestão de Migrations)
-* **Docker & Docker Compose** (Contentorização)
+* **Nimbus JOSE + JWT** (Cryptography and token signing)
+* **PostgreSQL 16** (Database)
+* **Flyway** (Migration Management)
+* **Docker & Docker Compose** (Containerization)
 
 ---
 
-##  Segurança e Chaves RSA
-A API utiliza um par de chaves RSA de 2048 bits para garantir a integridade dos tokens. A chave **Privada** assina o token e a chave **Pública** valida a assinatura.
+## Security and RSA Keys
+The API uses a pair of 2048-bit RSA keys to ensure token integrity. The **Private** key signs the token and the **Public** key validates the signature.
 
-###  Gerar as chaves de Desenvolvimento
-Na raiz do projeto, execute os seguintes comandos para criar a pasta de certificados e as chaves no formato **PKCS#8** (padrão exigido pelo Java):
+### Generate Development Keys
+In the project root, run the following commands to create the certificates folder and the keys in **PKCS#8** format (required standard for Java):
 
 ```bash
 mkdir certs
 
-# 1. Gerar chave privada original
+# 1. Generate original private key
 openssl genrsa -out certs/private.pem 2048
 
-# 2. Converter para PKCS#8 (Obrigatório para o Spring ler o ficheiro)
+# 2. Convert to PKCS#8 (Required for Spring to read the file)
 openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in certs/private.pem -out certs/private_pkcs8.pem
 
-# 3. Extrair a chave pública
+# 3. Extract the public key
 openssl rsa -in certs/private.pem -pubout -out certs/public.pem
 
 ```
