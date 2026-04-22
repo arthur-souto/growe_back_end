@@ -1,6 +1,6 @@
 package br.com.growe.growe_backend.config.security;
 
-import br.com.growe.growe_backend.domain.Users;
+import br.com.growe.growe_backend.domain.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-public record UserPrincipal(Users user) implements UserDetails {
+public record UserPrincipal(User user) implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

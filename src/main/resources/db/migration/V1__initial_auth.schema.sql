@@ -6,8 +6,9 @@ CREATE TABLE users(
     role VARCHAR(20) NOT NULL,
     active BOOLEAN DEFAULT TRUE,
     profile_image VARCHAR(500),
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP,
+    last_login_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ,
 
     CONSTRAINT ck_role CHECK ( role IN ('ADMIN', 'EMPLOYEE', 'RH', 'MANAGER', 'GUEST') )
 );

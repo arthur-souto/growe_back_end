@@ -2,13 +2,11 @@ package br.com.growe.growe_backend.controller;
 
 import br.com.growe.growe_backend.dtos.request.SignInRequest;
 import br.com.growe.growe_backend.dtos.response.SignInResponse;
+import br.com.growe.growe_backend.dtos.response.UserDetailsResponse;
 import br.com.growe.growe_backend.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -21,4 +19,5 @@ public class AuthController {
   public SignInResponse signIn(@RequestBody @Valid SignInRequest req) {
     return authService.signIn(req);
   }
+
 }

@@ -1,11 +1,12 @@
 package br.com.growe.growe_backend.domain;
 
-import br.com.growe.growe_backend.rules.Roles;
+import br.com.growe.growe_backend.rules.CompanyRole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,38 +17,26 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Users {
+public class CompanyMembers {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   @Column(updatable = false, nullable = false)
   private UUID id;
 
-  @Column(nullable = false)
-  private String fullName;
+  @ManyToOne
+  @JoinColumn(name = "company_id")
+  private Company company;
 
-  @Column(nullable = false)
-  private String email;
-
-  @Column(nullable = false)
-  private String password;
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private User user;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private Roles role;
-
-  @Column(columnDefinition = "boolean default true", nullable = false)
-  private boolean active;
-
-  @Column(nullable = true)
-  private String profileImage;
+  private CompanyRole role;
 
   @CreatedDate
   @Column(nullable = false, updatable = false)
-  private LocalDateTime createdAt;
-
-  @LastModifiedDate
-  @Column(insertable = false)
-  private LocalDateTime updatedAt;
-
+  private Instant createdAt;
 }

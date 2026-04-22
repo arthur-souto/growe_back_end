@@ -1,7 +1,7 @@
 package br.com.growe.growe_backend.service;
 
 import br.com.growe.growe_backend.config.security.UserPrincipal;
-import br.com.growe.growe_backend.repository.UsersRepository;
+import br.com.growe.growe_backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetailsService {
 
-  private final UsersRepository userRepository;
+  private final UserRepository userRepository;
 
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

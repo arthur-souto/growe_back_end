@@ -1,6 +1,6 @@
 package br.com.growe.growe_backend.repository;
 
-import br.com.growe.growe_backend.domain.Users;
+import br.com.growe.growe_backend.domain.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,9 +8,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UsersRepository extends JpaRepository<Users, UUID> {
+public interface CompanyRepository extends JpaRepository<Company, UUID> {
 
-  boolean existsByEmail(String email);
+  Optional<CompanyRepository> findBySlug(String slug);
 
-  Optional<Users> findByEmail(String email);
+  boolean existsByCnpj(String cnpj);
 }

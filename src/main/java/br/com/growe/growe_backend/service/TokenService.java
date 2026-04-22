@@ -23,10 +23,11 @@ public class TokenService {
 
     final var claims = JwtClaimsSet.builder()
         .issuer("growe-backend")
-        .subject(principal.user().getEmail())
+        .subject(principal.user().getId().toString())
         .issuedAt(now)
         .expiresAt(now.plusSeconds(3600)) // Token válido por 1 hora
         .claim("role", principal.user().getRole().name())
+        .claim("email", principal.user().getEmail())
         .claim("fullName", principal.user().getFullName())
         .build();
 

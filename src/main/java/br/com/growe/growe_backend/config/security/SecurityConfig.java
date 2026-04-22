@@ -1,5 +1,6 @@
 package br.com.growe.growe_backend.config.security;
 
+import br.com.growe.growe_backend.rules.Role;
 import br.com.growe.growe_backend.service.CustomUserDetails;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -8,6 +9,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -42,6 +44,8 @@ public class SecurityConfig {
 
   private final CustomUserDetails customUserDetails;
 
+  private final ApplicationContext applicationContext;
+
   @Value("${jwt.public.key}")
   private RSAPublicKey rsaPublicKey;
 
@@ -57,9 +61,9 @@ public class SecurityConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers(HttpMethod.POST, "/api/v1/auth/sign-in").permitAll()
             .requestMatchers(HttpMethod.POST, "/api/v1/users/sign-up").permitAll()
-            .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-            .requestMatchers("/api/v1/rh/**").hasAnyRole("ADMIN", "RH")
-            .requestMatchers("/api/v1/employees/**").hasAnyRole("ADMIN", "RH", "EMPLOYEE")
+            .requestMatchers("/api/v1/admin/**").hasRole(Role.ADMIN.name())
+            .requestMatchers("/api/v1/rh/**").hasAnyRole(Role.ADMIN.name(), Role.RH.name())
+            .requestMatchers("/api/v1/employees/**").hasAnyRole(Role.ADMIN.name(), Role.RH.name(), Role.EMPLOYEE.name())
             .requestMatchers(
                 "/swagger-ui/**",
                 "/swagger-ui.html",
@@ -70,7 +74,9 @@ public class SecurityConfig {
         )
         .oauth2ResourceServer(oAuth2 -> oAuth2
             .jwt(
-                jwt ->jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+                jwt ->jwt.jwtAuthenticationConverter(
+                    applicationContext.getBean(JwtToPrincipalConverter.class)
+                )
             )
         )
         .build();
@@ -106,18 +112,6 @@ public class SecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
-  }
-
-  @Bean
-  public JwtAuthenticationConverter jwtAuthenticationConverter() {
-    JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
-
-    authoritiesConverter.setAuthoritiesClaimName("role");
-    authoritiesConverter.setAuthorityPrefix("ROLE_");
-
-    JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-    converter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
-    return converter;
   }
 
   @Bean

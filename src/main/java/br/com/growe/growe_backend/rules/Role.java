@@ -1,6 +1,6 @@
 package br.com.growe.growe_backend.rules;
 
-public enum Roles {
+public enum Role {
   ADMIN,
   EMPLOYEE,
   RH,
