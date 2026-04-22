@@ -1,5 +1,6 @@
 package br.com.growe.growe_backend.config.security;
 
+import br.com.growe.growe_backend.repository.UserRepository;
 import br.com.growe.growe_backend.rules.Role;
 import br.com.growe.growe_backend.service.CustomUserDetails;
 import com.nimbusds.jose.jwk.JWK;
@@ -25,8 +26,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.*;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -42,9 +41,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-  private final CustomUserDetails customUserDetails;
-
   private final ApplicationContext applicationContext;
+
+  private final UserRepository userRepository;
 
   @Value("${jwt.public.key}")
   private RSAPublicKey rsaPublicKey;
@@ -85,7 +84,7 @@ public class SecurityConfig {
   @Bean
   public DaoAuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-    authProvider.setUserDetailsService(customUserDetails);
+    authProvider.setUserDetailsService(new CustomUserDetails(userRepository));
     authProvider.setPasswordEncoder(passwordEncoder());
     return authProvider;
   }
@@ -108,6 +107,7 @@ public class SecurityConfig {
     //decoder.setJwtValidator(new JwtIssuerValidator("https://api.growe.com.br"));
     return decoder;
   }
+
 
   @Bean
   public PasswordEncoder passwordEncoder() {
