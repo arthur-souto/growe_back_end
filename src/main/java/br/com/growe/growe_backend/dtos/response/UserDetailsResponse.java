@@ -4,9 +4,10 @@ import br.com.growe.growe_backend.domain.User;
 import br.com.growe.growe_backend.rules.Role;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record UserDetailsResponse(
+    UUID id,
     String fullName,
     String email,
     Role role,
@@ -19,6 +20,7 @@ public record UserDetailsResponse(
 
   public static UserDetailsResponse toResponse(User user) {
     return new UserDetailsResponse(
+        user.getId(),
         user.getFullName(),
         user.getEmail(),
         user.getRole(),

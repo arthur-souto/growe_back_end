@@ -16,6 +16,8 @@ import java.time.Instant;
 public class TokenService {
 
   private final JwtEncoder jwtEncoder;
+  private static final long TOKEN_EXPIRATION_SECONDS = 3600L;
+
 
   public String generateToken(UserPrincipal principal) {
 
@@ -25,14 +27,21 @@ public class TokenService {
         .issuer("growe-backend")
         .subject(principal.user().getId().toString())
         .issuedAt(now)
-        .expiresAt(now.plusSeconds(3600)) // Token válido por 1 hora
+        .expiresAt(now.plusSeconds(TOKEN_EXPIRATION_SECONDS))
         .claim("role", principal.user().getRole().name())
         .claim("email", principal.user().getEmail())
+        .claim("lastLoginAt", formatInstant(principal.user().getLastLoginAt()))
+        .claim("profileImage", principal.user().getProfileImage() != null ? principal. user().getProfileImage() : "") // ✅ never null
         .claim("fullName", principal.user().getFullName())
         .build();
 
-    JwsHeader header = JwsHeader.with(SignatureAlgorithm.RS256).build();
+    final var header = JwsHeader.with(SignatureAlgorithm.RS256).build();
 
     return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+  }
+
+  // Safely converts Instant → ISO-8601 String for JWT serialization
+  private String formatInstant(Instant instant) {
+    return instant != null ? instant.toString() : "";
   }
 }
