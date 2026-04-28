@@ -18,22 +18,15 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final TokenService tokenService;
+  private final CookieService cookieService;
 
   @Transactional
   public SignUpResponse signUp(SignUpRequest request, HttpServletResponse response) {
 
     final var user = SignUpRequest.toEntity(request);
     final var token = tokenService.generateToken((new UserPrincipal(user)));
-
     final var savedUser = userRepository.save(user);
-
-    final var cookie = ResponseCookie.from("access_token", token)
-        .httpOnly(true)
-        .secure(false)    // true in production
-        .path("/")
-        .maxAge(3600)
-        .sameSite("Lax")  //  works cross-origin in dev
-        .build();
+    final var cookie = cookieService.generateCookie(token);
 
     response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 

@@ -25,5 +25,4 @@ public class AuthController {
   public void logout(HttpServletResponse response) {
     authService.logout(response);
   }
-
 }

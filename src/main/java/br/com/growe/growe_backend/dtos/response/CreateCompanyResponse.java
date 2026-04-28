@@ -1,7 +1,7 @@
 package br.com.growe.growe_backend.dtos.response;
 
 import br.com.growe.growe_backend.domain.Company;
-import br.com.growe.growe_backend.domain.CompanyMembers;
+import br.com.growe.growe_backend.domain.CompanyMember;
 import br.com.growe.growe_backend.rules.Plan;
 import br.com.growe.growe_backend.rules.SizeRange;
 
@@ -19,7 +19,7 @@ public record CreateCompanyResponse(
 
   public static CreateCompanyResponse toResponse(
      Company company,
-     CompanyMembers companyMembers
+     CompanyMember companyMembers
   ) {
     return new CreateCompanyResponse(
         company.getSlug(),

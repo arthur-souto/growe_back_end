@@ -31,7 +31,7 @@ public class TokenService {
         .claim("role", principal.user().getRole().name())
         .claim("email", principal.user().getEmail())
         .claim("lastLoginAt", formatInstant(principal.user().getLastLoginAt()))
-        .claim("profileImage", principal.user().getProfileImage() != null ? principal. user().getProfileImage() : "") // ✅ never null
+        .claim("profileImage", principal.user().getProfileImage() != null ? principal. user().getProfileImage() : "")
         .claim("fullName", principal.user().getFullName())
         .build();
 

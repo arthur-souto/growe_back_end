@@ -22,6 +22,7 @@ public class AuthService {
   private final AuthenticationManager authenticationManager;
   private final UserRepository userRepository;
   private final TokenService tokenService;
+  private final CookieService cookieService;
 
   @Transactional
   public SignInResponse signIn(SignInRequest req, HttpServletResponse response) {
@@ -29,21 +30,12 @@ public class AuthService {
     final var authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(req.email(), req.password())
     );
-
     final var principal = (UserPrincipal) authentication.getPrincipal();
     final var token = tokenService.generateToken(principal);
-
-    final var cookie = ResponseCookie.from("access_token", token)
-        .httpOnly(true)
-        .secure(false)    // true in production
-        .path("/")
-        .maxAge(3600)
-        .sameSite("Lax")  //  works cross-origin in dev
-        .build();
+    final var cookie = cookieService.generateCookie(token);
+    final var user = principal.user();
 
     response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-    final var user = principal.user();
 
     user.setLastLoginAt(Instant.now());
     userRepository.save(user);
@@ -53,13 +45,8 @@ public class AuthService {
 
 
   public void logout(HttpServletResponse response) {
-    final var cookie = ResponseCookie.from("access_token", "")
-        .httpOnly(true)
-        .secure(false)    // true in production
-        .path("/")
-        .maxAge(0)        //  deletes the cookie
-        .sameSite("Lax")
-        .build();
+
+    final var cookie = cookieService.clearCookie();
 
     response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
   }

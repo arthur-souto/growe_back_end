@@ -9,7 +9,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -60,4 +60,6 @@ public class Company {
   @Column(insertable = false)
   private Instant updatedAt;
 
+  @OneToMany(mappedBy = "company")
+  private List<CompanyMember> members;
 }
