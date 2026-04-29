@@ -4,6 +4,7 @@ import br.com.growe.growe_backend.domain.Company;
 import br.com.growe.growe_backend.rules.Plan;
 import lombok.Builder;
 
+import java.util.List;
 import java.util.UUID;
 
 @Builder
@@ -15,7 +16,8 @@ public record ResumeCompanyResponse(
     String sizeRange,
     Plan plan,
     String companyImage,
-    boolean isActive
+    boolean isActive,
+    List<ResumeMemberResponse> users
 ) {
 
   public static ResumeCompanyResponse toResponse(Company company) {
@@ -29,6 +31,7 @@ public record ResumeCompanyResponse(
         .plan(company.getPlan())
         .companyImage(company.getCompanyImage())
         .isActive(company.isActive())
+        .users(company.getMembers().stream().map(m -> ResumeMemberResponse.fromEntity(m.getUser(), m)).toList())
         .build();
 
   }

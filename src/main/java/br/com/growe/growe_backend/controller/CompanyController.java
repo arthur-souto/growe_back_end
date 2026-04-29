@@ -1,12 +1,11 @@
 package br.com.growe.growe_backend.controller;
 
 import br.com.growe.growe_backend.config.security.UserPrincipal;
+import br.com.growe.growe_backend.dtos.request.CreateCompanyMemberRequest;
 import br.com.growe.growe_backend.dtos.request.CreateCompanyRequest;
 import br.com.growe.growe_backend.dtos.request.UpdateCompanyRequest;
-import br.com.growe.growe_backend.dtos.response.CompanyDetailsResponse;
-import br.com.growe.growe_backend.dtos.response.CreateCompanyResponse;
-import br.com.growe.growe_backend.dtos.response.IdResponse;
-import br.com.growe.growe_backend.dtos.response.ResumeCompanyResponse;
+import br.com.growe.growe_backend.dtos.response.*;
+import br.com.growe.growe_backend.service.CompanyMemberService;
 import br.com.growe.growe_backend.service.CompanyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CompanyController {
 
+  private final CompanyMemberService companyMemberService;
   private final CompanyService companyService;
+
 
   @PostMapping("/create-company")
   public CreateCompanyResponse createCompany(@RequestBody @Valid CreateCompanyRequest req, Authentication authentication) {
@@ -63,4 +64,15 @@ public class CompanyController {
    return companyService.findBySlug(slug, (UserPrincipal) authentication.getPrincipal());
   }
 
+  @GetMapping("/{slug}/members")
+  public Page<ResumeMemberResponse> findAllMembers(@PathVariable String slug, Authentication authentication, Pageable pageable) {
+
+    return companyMemberService.findMembersBySlug(slug, (UserPrincipal) authentication.getPrincipal() , pageable);
+  }
+
+  @PostMapping("/{slug}/add-member")
+  public IdResponse addMember(@PathVariable String slug, CreateCompanyMemberRequest req, Authentication authentication) {
+
+    return companyMemberService.createEmployeeMember(slug, req , (UserPrincipal) authentication.getPrincipal());
+  }
 }

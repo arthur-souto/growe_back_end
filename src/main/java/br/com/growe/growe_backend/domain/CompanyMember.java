@@ -25,11 +25,11 @@ public class CompanyMember {
   private UUID id;
 
   @ManyToOne
-  @JoinColumn(name = "company_id")
+  @JoinColumn(name = "company_id", nullable = false)
   private Company company;
 
   @ManyToOne
-  @JoinColumn(name = "user_id")
+  @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
   @Enumerated(EnumType.STRING)

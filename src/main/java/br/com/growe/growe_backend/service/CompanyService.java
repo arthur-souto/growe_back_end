@@ -16,7 +16,6 @@ import br.com.growe.growe_backend.rules.CompanyRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,10 +29,9 @@ import java.time.ZoneOffset;
 @RequiredArgsConstructor
 public class CompanyService {
 
+  private final CompanyMemberService companyMemberService;
   private final CompanyRepository companyRepository;
-
   private final CompanyMembersRepository companyMembersRepository;
-
   private static final int TRIAL_PERIOD_MONTHS = 3;
 
 
@@ -87,12 +85,12 @@ public class CompanyService {
 
     final var user = userPrincipal.user();
     final var company = this.findCompanyBySlug(slug);
-    final var member = companyMembersRepository.findByUser_idAndCompany_id(
+    final var member = companyMemberService.findCompanyMemberByUserAndCompany(
         user.getId(),
         company.getId()
     );
 
-    PermissionsService.checkMemberPermissionForCompany(member);
+    PermissionsService.validateIsOwner(member);
 
     final var slugUpdated = generateSlug(req.name());
 
@@ -117,14 +115,15 @@ public class CompanyService {
 
     final var user = userPrincipal.user();
     final var company = this.findCompanyBySlug(slug);
-    final var member = companyMembersRepository.findByUser_idAndCompany_id(
+
+    final var member = companyMemberService.findCompanyMemberByUserAndCompany(
         user.getId(),
         company.getId()
     );
 
-    PermissionsService.checkMemberPermissionForCompany(member);
+    PermissionsService.validateIsOwner(member);
 
-    companyRepository.deleteBySlug(slug);
+    companyRepository.delete(company);
   }
 
   @Transactional(readOnly = true)
@@ -132,12 +131,13 @@ public class CompanyService {
 
     final var user = userPrincipal.user();
     final var company = this.findCompanyBySlug(slug);
-    final var member = companyMembersRepository.findByUser_idAndCompany_id(
+
+    final var member = companyMemberService.findCompanyMemberByUserAndCompany(
         user.getId(),
         company.getId()
     );
 
-    PermissionsService.checkMemberPermissionForCompany(member);
+    PermissionsService.validateIsOwner(member);
 
     return CompanyDetailsResponse.fromEntity(company);
   }

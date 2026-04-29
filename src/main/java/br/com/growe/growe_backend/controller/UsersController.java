@@ -26,7 +26,7 @@ public class UsersController {
   @GetMapping("/me")
   public UserDetailsResponse me(Authentication authentication) {
     final var principal = (UserPrincipal) authentication.getPrincipal();
-    return usersService.myInformations(principal);
+    return usersService.myInformation(principal);
   }
 
 }

@@ -8,7 +8,7 @@ import br.com.growe.growe_backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +18,15 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final TokenService tokenService;
+  private final PasswordEncoder passwordEncoder;
   private final CookieService cookieService;
 
   @Transactional
   public SignUpResponse signUp(SignUpRequest request, HttpServletResponse response) {
 
     final var user = SignUpRequest.toEntity(request);
+    user.setPassword(passwordEncoder.encode(request.password()));
+
     final var token = tokenService.generateToken((new UserPrincipal(user)));
     final var savedUser = userRepository.save(user);
     final var cookie = cookieService.generateCookie(token);
@@ -34,7 +37,8 @@ public class UserService {
   }
 
   @Transactional(readOnly = true)
-  public UserDetailsResponse myInformations (UserPrincipal principal) {
+  public UserDetailsResponse myInformation(UserPrincipal principal) {
     return UserDetailsResponse.toResponse(principal.user());
   }
+
 }

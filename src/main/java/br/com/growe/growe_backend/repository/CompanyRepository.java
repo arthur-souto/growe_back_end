@@ -31,7 +31,4 @@ public interface CompanyRepository extends JpaRepository<Company, UUID> {
         Pageable pageable);
 
   boolean existsByCnpj(String cnpj);
-
-
-  void deleteBySlug(String slug);
 }
