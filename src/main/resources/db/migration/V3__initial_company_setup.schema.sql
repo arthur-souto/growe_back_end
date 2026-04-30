@@ -18,7 +18,7 @@ CREATE TABLE company_members (
                                  company_id   UUID        NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
                                  user_id      UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                                  role         VARCHAR(30) NOT NULL DEFAULT 'EMPLOYEE'
-                                     CHECK (role IN ('OWNER','ADMIN','MANAGER','EMPLOYEE')),
+                                     CHECK (role IN ('OWNER','ADMIN','MANAGER','EMPLOYEE', 'RH')),
                                  created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
                                  UNIQUE (company_id, user_id)
 );

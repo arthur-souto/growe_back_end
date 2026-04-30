@@ -6,9 +6,11 @@ import br.com.growe.growe_backend.rules.CompanyRole;
 import lombok.Builder;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Builder
 public record ResumeMemberResponse(
+    UUID id,
     String fullName,
     String email,
     String profileImage,
@@ -19,6 +21,7 @@ public record ResumeMemberResponse(
     return
         ResumeMemberResponse
             .builder()
+            .id(member.getId())
             .fullName(user.getFullName())
             .email(user.getEmail())
             .profileImage(user.getProfileImage())

@@ -1,9 +1,7 @@
 package br.com.growe.growe_backend.controller;
 
 import br.com.growe.growe_backend.config.security.UserPrincipal;
-import br.com.growe.growe_backend.dtos.request.CreateCompanyMemberRequest;
-import br.com.growe.growe_backend.dtos.request.CreateCompanyRequest;
-import br.com.growe.growe_backend.dtos.request.UpdateCompanyRequest;
+import br.com.growe.growe_backend.dtos.request.*;
 import br.com.growe.growe_backend.dtos.response.*;
 import br.com.growe.growe_backend.service.CompanyMemberService;
 import br.com.growe.growe_backend.service.CompanyService;
@@ -12,7 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/companies")
@@ -74,5 +76,28 @@ public class CompanyController {
   public IdResponse addMember(@PathVariable String slug, CreateCompanyMemberRequest req, Authentication authentication) {
 
     return companyMemberService.createEmployeeMember(slug, req , (UserPrincipal) authentication.getPrincipal());
+  }
+
+  @PatchMapping("/{slug}/update-member/{memberId}")
+  public IdResponse updateMember(@RequestBody UpdateCompanyMemberRequest req, @PathVariable UUID memberId, @PathVariable String slug, Authentication authentication) {
+
+    return companyMemberService.updateEmployeeMember((UserPrincipal) authentication.getPrincipal(), req, memberId, slug);
+  }
+
+  @DeleteMapping("/{slug}/members/{memberId}")
+  public void deleteMember(@PathVariable UUID memberId, @PathVariable String slug, Authentication authentication) {
+
+    companyMemberService.deleteEmployeeMember((UserPrincipal) authentication.getPrincipal(), memberId, slug);
+  }
+
+  @PostMapping("/{slug}/members/import")
+  public ImportSummaryResponse importMembers(
+      @PathVariable String slug,
+      @RequestParam("file") MultipartFile file,
+      @AuthenticationPrincipal UserPrincipal userPrincipal
+  ) {
+
+    return companyMemberService.importMembersFromFile(slug, file, userPrincipal);
+
   }
 }

@@ -21,7 +21,7 @@ spring:
     properties:
       hibernate:
         jdbc:
-          time_zone: UTC  # ✅ added here
+          time_zone: UTC
 
 jwt:
   public:
@@ -40,3 +40,9 @@ springdoc:
     operations-sorter: method
   api-docs:
     path: /v3/api-docs
+
+groq:
+  api:
+    url: ${GROQ_API_URL}
+    key: ${GROQ_API_KEY}
+    model: ${GROQ_API_MODEL}

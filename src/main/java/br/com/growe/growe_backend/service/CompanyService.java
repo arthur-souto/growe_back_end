@@ -13,6 +13,7 @@ import br.com.growe.growe_backend.exceptions.ResourceNotFoundException;
 import br.com.growe.growe_backend.repository.CompanyMembersRepository;
 import br.com.growe.growe_backend.repository.CompanyRepository;
 import br.com.growe.growe_backend.rules.CompanyRole;
+import br.com.growe.growe_backend.utils.CompanyUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,13 +33,10 @@ public class CompanyService {
   private final CompanyMemberService companyMemberService;
   private final CompanyRepository companyRepository;
   private final CompanyMembersRepository companyMembersRepository;
+  private final CompanyUtils companyUtils;
   private static final int TRIAL_PERIOD_MONTHS = 3;
 
 
-  private Company findCompanyBySlug(String slug) {
-    return companyRepository.findBySlug(slug)
-        .orElseThrow(() -> new ResourceNotFoundException("Slug not found", slug));
-  }
 
   private String generateSlug(String name) {
 
@@ -84,7 +82,7 @@ public class CompanyService {
   public IdResponse updateCompany(String slug, UserPrincipal userPrincipal, UpdateCompanyRequest req) {
 
     final var user = userPrincipal.user();
-    final var company = this.findCompanyBySlug(slug);
+    final var company = companyUtils.findCompanyBySlug(slug);
     final var member = companyMemberService.findCompanyMemberByUserAndCompany(
         user.getId(),
         company.getId()
@@ -114,7 +112,7 @@ public class CompanyService {
   public void deleteCompany(String slug, UserPrincipal userPrincipal) {
 
     final var user = userPrincipal.user();
-    final var company = this.findCompanyBySlug(slug);
+    final var company = companyUtils.findCompanyBySlug(slug);
 
     final var member = companyMemberService.findCompanyMemberByUserAndCompany(
         user.getId(),
@@ -130,7 +128,7 @@ public class CompanyService {
   public CompanyDetailsResponse findBySlug(String slug, UserPrincipal userPrincipal) {
 
     final var user = userPrincipal.user();
-    final var company = this.findCompanyBySlug(slug);
+    final var company = companyUtils.findCompanyBySlug(slug);
 
     final var member = companyMemberService.findCompanyMemberByUserAndCompany(
         user.getId(),
