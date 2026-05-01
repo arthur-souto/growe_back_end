@@ -53,6 +53,9 @@ public class SecurityConfig {
   @Value("${jwt.public.key}")
   private RSAPublicKey rsaPublicKey;
 
+  @Value("${app.frontend.url}")
+  private String frontendUrl;
+
   @Value("${jwt.private.key}")
   private RSAPrivateKey rsaPrivateKey;
 
@@ -156,7 +159,7 @@ public class SecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
-    configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
+    configuration.setAllowedOrigins(List.of(frontendUrl));
 
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
     configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-XSRF-TOKEN"));

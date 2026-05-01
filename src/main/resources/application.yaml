@@ -30,6 +30,8 @@ jwt:
     key: ${JWT_PRIVATE_KEY:file:certs/private_pkcs8.pem}
 
 app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:5173}
   # Set to true in development/staging, false in production
   include-error-details: ${INCLUDE_ERROR_DETAILS:false}
 
@@ -46,3 +48,4 @@ groq:
     url: ${GROQ_API_URL}
     key: ${GROQ_API_KEY}
     model: ${GROQ_API_MODEL}
+
