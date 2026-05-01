@@ -16,8 +16,8 @@ public class PermissionsService {
     }
   }
 
-  public static void validateIsOwnerOrManager(CompanyMember member) {
-    if(member.getRole() != CompanyRole.OWNER && member.getRole() != CompanyRole.MANAGER) {
+  public static void validateHighPermission(CompanyMember member) {
+    if(member.getRole() != CompanyRole.OWNER && member.getRole() != CompanyRole.MANAGER && member.getRole() != CompanyRole.ADMIN) {
       throw new AccessDeniedException("You don`t have permissions");
     }
   }

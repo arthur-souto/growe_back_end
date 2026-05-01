@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,8 +25,8 @@ public class UsersController {
   }
 
   @GetMapping("/me")
-  public UserDetailsResponse me(Authentication authentication) {
-    final var principal = (UserPrincipal) authentication.getPrincipal();
+  public UserDetailsResponse me(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    final var principal = userPrincipal;
     return usersService.myInformation(principal);
   }
 

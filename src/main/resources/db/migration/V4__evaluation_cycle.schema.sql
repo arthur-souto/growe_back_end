@@ -1,0 +1,15 @@
+
+
+CREATE TABLE evaluation_cycle (
+id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+created_by UUID NOT NULL REFERENCES company_members(id) ON DELETE CASCADE,
+name VARCHAR(200) NOT NULL,
+description VARCHAR(500) NOT NULL,
+color VARCHAR(7) NOT NULL DEFAULT '#6366f1', -- hex color e.g. #6366f1
+is_active BOOLEAN NOT NULL DEFAULT FALSE,
+start_date TIMESTAMPTZ NOT NULL,
+end_date TIMESTAMPTZ NOT NULL,
+created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+updated_at TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+)

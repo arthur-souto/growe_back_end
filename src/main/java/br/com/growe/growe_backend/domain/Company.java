@@ -57,9 +57,12 @@ public class Company {
   private Instant createdAt;
 
   @LastModifiedDate
-  @Column(insertable = false)
+  @Column(nullable = false)
   private Instant updatedAt;
 
   @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<CompanyMember> members;
+
+  @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<EvaluationCycle> cycles;
 }

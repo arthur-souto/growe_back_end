@@ -9,15 +9,14 @@ import br.com.growe.growe_backend.dtos.request.ParsedMember;
 import br.com.growe.growe_backend.dtos.request.UpdateCompanyMemberRequest;
 import br.com.growe.growe_backend.dtos.response.IdResponse;
 import br.com.growe.growe_backend.dtos.response.ResumeMemberResponse;
-import br.com.growe.growe_backend.exceptions.AccessDeniedException;
 import br.com.growe.growe_backend.exceptions.BusinessException;
 import br.com.growe.growe_backend.exceptions.ConflictException;
 import br.com.growe.growe_backend.exceptions.ResourceNotFoundException;
 import br.com.growe.growe_backend.repository.CompanyMembersRepository;
-import br.com.growe.growe_backend.repository.CompanyRepository;
 import br.com.growe.growe_backend.repository.UserRepository;
 import br.com.growe.growe_backend.rules.CompanyRole;
 import br.com.growe.growe_backend.rules.Role;
+import br.com.growe.growe_backend.utils.CompanyMemberUtils;
 import br.com.growe.growe_backend.utils.CompanyUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.Loader;
@@ -49,24 +48,19 @@ public class CompanyMemberService {
   private final PasswordEncoder passwordEncoder;
   private final LLMParserService llmParserService;
   private final CompanyUtils companyUtils;
+  private final CompanyMemberUtils companyMemberUtils;
 
   private static final int START_SKIPPED_VALUE = 0;
   private static final int START_CREATED_VALUE = 0;
-
-  public CompanyMember findCompanyMemberByUserAndCompany(UUID userId, UUID companyId) {
-
-    return companyMembersRepository.findByUser_idAndCompany_id(userId, companyId)
-        .orElseThrow(() -> new AccessDeniedException("You dont have permissions"));
-  }
 
   @Transactional(readOnly = true)
   public Page<ResumeMemberResponse> findMembersBySlug(String slug, UserPrincipal userPrincipal, Pageable pageable) {
 
     final var company = companyUtils.findCompanyBySlug(slug);
 
-    final var memberCompany = this.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
+    final var memberCompany = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.validateIsOwnerOrManager(memberCompany);
+    PermissionsService.validateHighPermission(memberCompany);
 
     Page<CompanyMember> members = companyMembersRepository
         .findAllBySlug(slug, true, pageable);
@@ -85,9 +79,9 @@ public class CompanyMemberService {
 
     final var company = companyUtils.findCompanyBySlug(slug);
 
-    final var memberCompany = this.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
+    final var memberCompany = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.validateIsOwnerOrManager(memberCompany);
+    PermissionsService.validateHighPermission(memberCompany);
 
     this.valideNewRoleForMember(req.role());
 
@@ -128,9 +122,9 @@ public class CompanyMemberService {
     }
 
     final var company = companyUtils.findCompanyBySlug(slug);
-    final var requesterMember = this.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
+    final var requesterMember = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.validateIsOwnerOrManager(requesterMember);
+    PermissionsService.validateHighPermission(requesterMember);
 
     final var member = findCompanyMemberById(memberId);
 
@@ -151,9 +145,9 @@ public class CompanyMemberService {
     }
 
     final var company = companyUtils.findCompanyBySlug(slug);
-    final var requesterMember = this.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
+    final var requesterMember = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.validateIsOwnerOrManager(requesterMember);
+    PermissionsService.validateHighPermission(requesterMember);
 
     final var member = this.findCompanyMemberById(memberId);
     final var memberUser = member.getUser().getId();
@@ -205,11 +199,11 @@ public class CompanyMemberService {
 
     final var company = companyUtils.findCompanyBySlug(slug);
 
-    final var memberCompany = this.findCompanyMemberByUserAndCompany(
+    final var memberCompany = companyMemberUtils.findCompanyMemberByUserAndCompany(
         userPrincipal.user().getId(), company.getId()
     );
 
-    PermissionsService.validateIsOwnerOrManager(memberCompany);
+    PermissionsService.validateHighPermission(memberCompany);
 
     String rawText = extractTextFromFile(file);
     List<ParsedMember> parsed = llmParserService.extractMembers(rawText);

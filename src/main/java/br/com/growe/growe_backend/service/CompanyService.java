@@ -13,6 +13,7 @@ import br.com.growe.growe_backend.exceptions.ResourceNotFoundException;
 import br.com.growe.growe_backend.repository.CompanyMembersRepository;
 import br.com.growe.growe_backend.repository.CompanyRepository;
 import br.com.growe.growe_backend.rules.CompanyRole;
+import br.com.growe.growe_backend.utils.CompanyMemberUtils;
 import br.com.growe.growe_backend.utils.CompanyUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,19 +25,19 @@ import java.text.Normalizer;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
+import java.util.List;
 
 
 @Service
 @RequiredArgsConstructor
 public class CompanyService {
 
-  private final CompanyMemberService companyMemberService;
   private final CompanyRepository companyRepository;
   private final CompanyMembersRepository companyMembersRepository;
   private final CompanyUtils companyUtils;
+  private final CompanyMemberUtils companyMemberUtils;
   private static final int TRIAL_PERIOD_MONTHS = 3;
-
-
+  private static final List<CompanyRole> ACCESS_ROLES = List.of(CompanyRole.ADMIN, CompanyRole.OWNER, CompanyRole.MANAGER, CompanyRole.RH);
 
   private String generateSlug(String name) {
 
@@ -83,7 +84,7 @@ public class CompanyService {
 
     final var user = userPrincipal.user();
     final var company = companyUtils.findCompanyBySlug(slug);
-    final var member = companyMemberService.findCompanyMemberByUserAndCompany(
+    final var member = companyMemberUtils.findCompanyMemberByUserAndCompany(
         user.getId(),
         company.getId()
     );
@@ -101,10 +102,10 @@ public class CompanyService {
   }
 
   @Transactional(readOnly = true)
-  public Page<ResumeCompanyResponse> findCompaniesByOwner(UserPrincipal userPrincipal, Pageable pageable) {
+  public Page<ResumeCompanyResponse> findCompanies(UserPrincipal userPrincipal, Pageable pageable) {
 
     return companyRepository
-        .findCompanies(userPrincipal.user().getId(), CompanyRole.OWNER, true, pageable)
+        .findCompanies(userPrincipal.user().getId(), ACCESS_ROLES, true, pageable)
         .map(ResumeCompanyResponse::toResponse);
   }
 
@@ -114,7 +115,7 @@ public class CompanyService {
     final var user = userPrincipal.user();
     final var company = companyUtils.findCompanyBySlug(slug);
 
-    final var member = companyMemberService.findCompanyMemberByUserAndCompany(
+    final var member = companyMemberUtils.findCompanyMemberByUserAndCompany(
         user.getId(),
         company.getId()
     );
@@ -130,12 +131,12 @@ public class CompanyService {
     final var user = userPrincipal.user();
     final var company = companyUtils.findCompanyBySlug(slug);
 
-    final var member = companyMemberService.findCompanyMemberByUserAndCompany(
+    final var member = companyMemberUtils.findCompanyMemberByUserAndCompany(
         user.getId(),
         company.getId()
     );
 
-    PermissionsService.validateIsOwner(member);
+    PermissionsService.validateHighPermission(member);
 
     return CompanyDetailsResponse.fromEntity(company);
   }

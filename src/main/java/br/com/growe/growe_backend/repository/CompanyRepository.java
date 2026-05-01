@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,17 +19,18 @@ public interface CompanyRepository extends JpaRepository<Company, UUID> {
   Optional<Company> findBySlug(String slug);
 
   @Query("""
-    SELECT c from Company c
-      JOIN c.members cm 
-        WHERE cm.user.id = :userId
-          AND c.isActive =  :isActive
-            AND cm.role = :role
-  """)
-  Page<Company> findCompanies (
-        @Param("userId") UUID userId,
-        @Param("role") CompanyRole role,
-        @Param("isActive") boolean isActive,
-        Pageable pageable);
+    SELECT c FROM Company c
+        JOIN c.members cm
+            WHERE cm.user.id = :userId
+                AND c.isActive = :isActive
+                    AND cm.role IN :roles
+""")
+  Page<Company> findCompanies(
+      @Param("userId") UUID userId,
+      @Param("roles") List<CompanyRole> roles,
+      @Param("isActive") boolean isActive,
+      Pageable pageable
+  );
 
   boolean existsByCnpj(String cnpj);
 }
