@@ -2,6 +2,7 @@ package br.com.growe.growe_backend.utils;
 
 import br.com.growe.growe_backend.domain.CompanyMember;
 import br.com.growe.growe_backend.exceptions.AccessDeniedException;
+import br.com.growe.growe_backend.exceptions.ResourceNotFoundException;
 import br.com.growe.growe_backend.repository.CompanyMembersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,12 @@ public class CompanyMemberUtils {
 
     return companyMembersRepository.findByUser_idAndCompany_id(userId, companyId)
         .orElseThrow(() -> new AccessDeniedException(message));
+  }
+
+  public CompanyMember findCompanyMemberById(UUID memberId) {
+
+    return companyMembersRepository.findById(memberId)
+        .orElseThrow(() -> new ResourceNotFoundException("Member not found", memberId.toString()));
   }
 
 }

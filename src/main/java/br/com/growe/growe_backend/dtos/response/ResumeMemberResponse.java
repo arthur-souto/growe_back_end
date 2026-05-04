@@ -17,14 +17,14 @@ public record ResumeMemberResponse(
     CompanyRole role,
     Instant createdAt
 ) {
-  public static ResumeMemberResponse fromEntity(User user, CompanyMember member) {
+  public static ResumeMemberResponse fromEntity(CompanyMember member) {
     return
         ResumeMemberResponse
             .builder()
             .id(member.getId())
-            .fullName(user.getFullName())
-            .email(user.getEmail())
-            .profileImage(user.getProfileImage())
+            .fullName(member.getUser().getFullName())
+            .email(member.getUser().getEmail())
+            .profileImage(member.getUser().getProfileImage())
             .role(member.getRole())
             .createdAt(member.getCreatedAt())
             .build();

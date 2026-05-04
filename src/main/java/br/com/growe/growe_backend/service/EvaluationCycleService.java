@@ -83,6 +83,7 @@ public class EvaluationCycleService {
             c.getName(),
             c.getDescription(),
             c.getColor(),
+            c.getTasks().size(),
             c.isActive(),
             c.getStartDate(),
             c.getEndDate(),

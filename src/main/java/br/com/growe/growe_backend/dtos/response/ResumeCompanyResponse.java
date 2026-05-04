@@ -31,7 +31,7 @@ public record ResumeCompanyResponse(
         .plan(company.getPlan())
         .companyImage(company.getCompanyImage())
         .isActive(company.isActive())
-        .users(company.getMembers().stream().map(m -> ResumeMemberResponse.fromEntity(m.getUser(), m)).toList())
+        .users(company.getMembers().stream().map(ResumeMemberResponse::fromEntity).toList())
         .build();
 
   }

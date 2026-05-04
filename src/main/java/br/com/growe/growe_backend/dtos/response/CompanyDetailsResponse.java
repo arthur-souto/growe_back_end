@@ -41,7 +41,7 @@ public record CompanyDetailsResponse(
             .isActive(company.isActive())
             .createdAt(company.getCreatedAt())
             .updatedAt(company.getUpdatedAt())
-            .members(company.getMembers().stream().map(m -> ResumeMemberResponse.fromEntity(m.getUser(), m)).toList())
+            .members(company.getMembers().stream().map(ResumeMemberResponse::fromEntity).toList())
             .build();
   }
 }

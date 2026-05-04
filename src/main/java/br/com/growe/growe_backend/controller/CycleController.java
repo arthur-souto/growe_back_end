@@ -36,7 +36,7 @@ public class CycleController {
 
     final var member = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.validateHighPermission(member);
+    PermissionsService.hasAdministrativeAccess(member);
 
     return evaluationCycleService.refreshStatusesBySlug(slug);
   }

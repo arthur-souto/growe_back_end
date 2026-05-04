@@ -1,6 +1,5 @@
 package br.com.growe.growe_backend.scheduler;
 
-import br.com.growe.growe_backend.repository.EvaluationCycleRepository;
 import br.com.growe.growe_backend.service.EvaluationCycleService;
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +19,9 @@ public class EvaluationCycleScheduler {
   @Scheduled(cron = "0 0 * * * *")
   @Transactional
   public void updateCyclesStatuses() {
-   evaluationCycleService.refreshStatuses();
+   final  var result = evaluationCycleService.refreshStatuses();
+
+   log.info("activated: {}, closed: {}", result.activated(), result.closed() );
   }
 
 }

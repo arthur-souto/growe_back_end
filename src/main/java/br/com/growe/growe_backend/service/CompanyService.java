@@ -1,7 +1,6 @@
 package br.com.growe.growe_backend.service;
 
 import br.com.growe.growe_backend.config.security.UserPrincipal;
-import br.com.growe.growe_backend.domain.Company;
 import br.com.growe.growe_backend.domain.CompanyMember;
 import br.com.growe.growe_backend.dtos.request.CreateCompanyRequest;
 import br.com.growe.growe_backend.dtos.request.UpdateCompanyRequest;
@@ -9,7 +8,6 @@ import br.com.growe.growe_backend.dtos.response.CompanyDetailsResponse;
 import br.com.growe.growe_backend.dtos.response.CreateCompanyResponse;
 import br.com.growe.growe_backend.dtos.response.IdResponse;
 import br.com.growe.growe_backend.dtos.response.ResumeCompanyResponse;
-import br.com.growe.growe_backend.exceptions.ResourceNotFoundException;
 import br.com.growe.growe_backend.repository.CompanyMembersRepository;
 import br.com.growe.growe_backend.repository.CompanyRepository;
 import br.com.growe.growe_backend.rules.CompanyRole;
@@ -37,7 +35,7 @@ public class CompanyService {
   private final CompanyUtils companyUtils;
   private final CompanyMemberUtils companyMemberUtils;
   private static final int TRIAL_PERIOD_MONTHS = 3;
-  private static final List<CompanyRole> ACCESS_ROLES = List.of(CompanyRole.ADMIN, CompanyRole.OWNER, CompanyRole.MANAGER, CompanyRole.RH);
+  private static final List<CompanyRole> ACCESS_ROLES = List.of(CompanyRole.ADMIN, CompanyRole.OWNER, CompanyRole.MANAGER, CompanyRole.RH, CompanyRole.EMPLOYEE);
 
   private String generateSlug(String name) {
 
@@ -131,12 +129,10 @@ public class CompanyService {
     final var user = userPrincipal.user();
     final var company = companyUtils.findCompanyBySlug(slug);
 
-    final var member = companyMemberUtils.findCompanyMemberByUserAndCompany(
+    companyMemberUtils.findCompanyMemberByUserAndCompany(
         user.getId(),
         company.getId()
     );
-
-    PermissionsService.validateHighPermission(member);
 
     return CompanyDetailsResponse.fromEntity(company);
   }

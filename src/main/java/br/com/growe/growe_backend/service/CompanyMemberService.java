@@ -58,14 +58,12 @@ public class CompanyMemberService {
 
     final var company = companyUtils.findCompanyBySlug(slug);
 
-    final var memberCompany = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
-
-    PermissionsService.validateHighPermission(memberCompany);
+    companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
     Page<CompanyMember> members = companyMembersRepository
         .findAllBySlug(slug, true, pageable);
 
-    return members.map(m -> ResumeMemberResponse.fromEntity(m.getUser(), m));
+    return members.map(ResumeMemberResponse::fromEntity);
   }
 
   private void valideNewRoleForMember(CompanyRole role) {
@@ -81,7 +79,7 @@ public class CompanyMemberService {
 
     final var memberCompany = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.validateHighPermission(memberCompany);
+    PermissionsService.hasAdministrativeAccess(memberCompany);
 
     this.valideNewRoleForMember(req.role());
 
@@ -124,7 +122,7 @@ public class CompanyMemberService {
     final var company = companyUtils.findCompanyBySlug(slug);
     final var requesterMember = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.validateHighPermission(requesterMember);
+    PermissionsService.hasAdministrativeAccess(requesterMember);
 
     final var member = findCompanyMemberById(memberId);
 
@@ -147,7 +145,7 @@ public class CompanyMemberService {
     final var company = companyUtils.findCompanyBySlug(slug);
     final var requesterMember = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.validateHighPermission(requesterMember);
+    PermissionsService.hasAdministrativeAccess(requesterMember);
 
     final var member = this.findCompanyMemberById(memberId);
     final var memberUser = member.getUser().getId();
@@ -203,7 +201,7 @@ public class CompanyMemberService {
         userPrincipal.user().getId(), company.getId()
     );
 
-    PermissionsService.validateHighPermission(memberCompany);
+    PermissionsService.hasAdministrativeAccess(memberCompany);
 
     String rawText = extractTextFromFile(file);
     List<ParsedMember> parsed = llmParserService.extractMembers(rawText);

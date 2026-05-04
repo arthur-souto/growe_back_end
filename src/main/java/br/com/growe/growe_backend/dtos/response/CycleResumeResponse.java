@@ -13,6 +13,7 @@ public record CycleResumeResponse(
     String name,
     String description,
     String color,
+    int tasksCount,
     boolean isActive,
     Instant startDate,
     Instant endDate,

@@ -1,13 +1,14 @@
 package br.com.growe.growe_backend.domain;
 
+import br.com.growe.growe_backend.rules.AssessmentType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -17,8 +18,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "evaluation_cycle")
-public class EvaluationCycle {
+@Table(name = "assessment")
+public class Assessment {
 
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -26,30 +27,30 @@ public class EvaluationCycle {
   private UUID id;
 
   @ManyToOne
-  @JoinColumn(name = "company_id", nullable = false)
-  private Company company;
+  @JoinColumn(name = "cycle_id", nullable = false)
+  private EvaluationCycle cycle;
 
   @ManyToOne
-  @JoinColumn(name = "created_by", nullable = false)
-  private CompanyMember createdBy;
+  @JoinColumn(name = "evaluator_id", nullable = false)
+  private CompanyMember evaluator;
 
-  @Column(nullable = false)
-  private String name;
+  @ManyToOne
+  @JoinColumn(name = "evaluated_id", nullable = false)
+  private CompanyMember evaluated;
 
-  @Column(length = 500)
-  private String description;
+  @Column(nullable = false, precision = 2, scale = 1)
+  private BigDecimal score;
 
-  @Column(length = 7, nullable = false)
-  private String color = "#6366f1";
+  @Column(length = 500, nullable = false)
+  private String comment;
 
-  @Column(columnDefinition = "boolean default false", nullable = false)
-  private boolean isActive;
+  @Enumerated(EnumType.STRING)
+  @Column(length = 10, nullable = false)
+  private AssessmentType assessmentType;
 
-  @Column(nullable = false)
-  private Instant startDate;
-
-  @Column(nullable = false)
-  private Instant endDate;
+  @ManyToOne
+  @JoinColumn(name = "task_id")
+  private EvaluationTask task;
 
   @CreatedDate
   @Column(nullable = false, updatable = false)
@@ -58,10 +59,4 @@ public class EvaluationCycle {
   @LastModifiedDate
   @Column(insertable = false)
   private Instant updatedAt;
-
-
-  @OneToMany(mappedBy = "cycle", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<EvaluationTask> tasks;
-
-
 }

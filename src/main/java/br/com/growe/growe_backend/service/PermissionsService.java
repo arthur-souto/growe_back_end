@@ -16,9 +16,13 @@ public class PermissionsService {
     }
   }
 
-  public static void validateHighPermission(CompanyMember member) {
+  public static void hasAdministrativeAccess(CompanyMember member) {
     if(member.getRole() != CompanyRole.OWNER && member.getRole() != CompanyRole.MANAGER && member.getRole() != CompanyRole.ADMIN) {
       throw new AccessDeniedException("You don`t have permissions");
     }
+  }
+
+  public static boolean hasAdministrativeAccessBoolean(CompanyMember member) {
+    return member.getRole() == CompanyRole.OWNER || member.getRole() == CompanyRole.MANAGER || member.getRole() == CompanyRole.ADMIN;
   }
 }
