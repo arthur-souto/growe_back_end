@@ -30,6 +30,7 @@ public class EvaluationTaskService {
   private final CompanyMemberUtils companyMemberUtils;
   private final CycleUtils cycleUtils;
   private final EvaluationTaskRepository evaluationTaskRepository;
+  private final PermissionsService permissionsService;
 
   @Transactional
   public IdResponse createTask(
@@ -90,7 +91,7 @@ public class EvaluationTaskService {
 
   private Page<EvaluationTaskResponse> getTasksByRole(CompanyMember member, UUID cycleId, Pageable pageable) {
 
-    if(PermissionsService.hasAdministrativeAccessBoolean(member)) {
+    if(permissionsService.hasAdministrativeAccessBoolean(member)) {
       return evaluationTaskRepository
           .findAllByCycle_Id(cycleId, pageable)
           .map(EvaluationTaskResponse::toResponse);

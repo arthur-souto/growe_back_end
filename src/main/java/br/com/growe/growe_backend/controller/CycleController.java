@@ -25,6 +25,7 @@ public class CycleController {
   private final CompanyUtils companyUtils;
   private final CompanyMemberUtils companyMemberUtils;
   private final EvaluationCycleService evaluationCycleService;
+  private final PermissionsService permissionsService;
 
   @PostMapping("/{slug}/refresh")
   @ResponseStatus(HttpStatus.OK)
@@ -36,7 +37,7 @@ public class CycleController {
 
     final var member = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.hasAdministrativeAccess(member);
+    permissionsService.hasAdministrativeAccess(member);
 
     return evaluationCycleService.refreshStatusesBySlug(slug);
   }

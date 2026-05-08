@@ -1,6 +1,7 @@
 package br.com.growe.growe_backend.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
@@ -10,23 +11,26 @@ public class CookieService {
 
   private final static String COOKIE_KEY = "access_token";
 
+  @Value("${app.cookie.secure:true}")
+  private boolean secureCookie;
+
   public ResponseCookie generateCookie(String token) {
-    return  ResponseCookie.from(COOKIE_KEY, token)
+    return ResponseCookie.from(COOKIE_KEY, token)
         .httpOnly(true)
-        .secure(false)    // true in production
+        .secure(secureCookie)
         .path("/")
         .maxAge(3600)
-        .sameSite("Lax")  //  works cross-origin in dev
+        .sameSite("Strict")
         .build();
   }
 
   public ResponseCookie clearCookie() {
-   return ResponseCookie.from(COOKIE_KEY, "")
+    return ResponseCookie.from(COOKIE_KEY, "")
         .httpOnly(true)
-        .secure(false)    // true in production
+        .secure(secureCookie)
         .path("/")
-        .maxAge(0)        //  deletes the cookie
-        .sameSite("Lax")
+        .maxAge(0)
+        .sameSite("Strict")
         .build();
   }
 

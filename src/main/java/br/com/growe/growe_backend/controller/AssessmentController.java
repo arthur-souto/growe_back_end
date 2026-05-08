@@ -30,7 +30,6 @@ public class AssessmentController {
 
   @PostMapping("/improve/comment")
   public ImproveCommentResponse improveComment(
-          @AuthenticationPrincipal UserPrincipal userPrincipal,
           @RequestBody @Valid ImproveCommentRequest req
   ) {
     return assessmentService.improveComment(req);

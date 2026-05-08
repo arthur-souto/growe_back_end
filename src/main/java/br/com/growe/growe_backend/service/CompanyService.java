@@ -33,6 +33,7 @@ public class CompanyService {
   private final CompanyRepository companyRepository;
   private final CompanyMembersRepository companyMembersRepository;
   private final CompanyUtils companyUtils;
+  private final PermissionsService permissionsService;
   private final CompanyMemberUtils companyMemberUtils;
   private static final int TRIAL_PERIOD_MONTHS = 3;
   private static final List<CompanyRole> ACCESS_ROLES = List.of(CompanyRole.ADMIN, CompanyRole.OWNER, CompanyRole.MANAGER, CompanyRole.RH, CompanyRole.EMPLOYEE);
@@ -87,7 +88,7 @@ public class CompanyService {
         company.getId()
     );
 
-    PermissionsService.validateIsOwner(member);
+    permissionsService.validateIsOwner(member);
 
     final var slugUpdated = generateSlug(req.name());
 
@@ -118,7 +119,7 @@ public class CompanyService {
         company.getId()
     );
 
-    PermissionsService.validateIsOwner(member);
+    permissionsService.validateIsOwner(member);
 
     companyRepository.delete(company);
   }

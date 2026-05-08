@@ -79,7 +79,7 @@ public class CompanyController {
   @PostMapping("/{slug}/add-member")
   public IdResponse addMember(
       @PathVariable String slug,
-      CreateCompanyMemberRequest req,
+      @RequestBody @Valid CreateCompanyMemberRequest req,
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
 
     return companyMemberService.createEmployeeMember(slug, req ,userPrincipal);

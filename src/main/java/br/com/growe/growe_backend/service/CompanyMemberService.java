@@ -49,6 +49,7 @@ public class CompanyMemberService {
   private final LLMParserService llmParserService;
   private final CompanyUtils companyUtils;
   private final CompanyMemberUtils companyMemberUtils;
+  private final PermissionsService permissionsService;
 
   private static final int START_SKIPPED_VALUE = 0;
   private static final int START_CREATED_VALUE = 0;
@@ -66,9 +67,9 @@ public class CompanyMemberService {
     return members.map(ResumeMemberResponse::fromEntity);
   }
 
-  private void valideNewRoleForMember(CompanyRole role) {
+  private void validateNewRoleForMember(CompanyRole role) {
     if(role.equals(CompanyRole.OWNER)) {
-      throw new ConflictException("You can`t create/update an OWNER");
+      throw new ConflictException("You can't create/update an OWNER");
     }
   }
 
@@ -79,9 +80,9 @@ public class CompanyMemberService {
 
     final var memberCompany = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.hasAdministrativeAccess(memberCompany);
+    permissionsService.hasAdministrativeAccess(memberCompany);
 
-    this.valideNewRoleForMember(req.role());
+    this.validateNewRoleForMember(req.role());
 
     final var user = User
         .builder()
@@ -122,11 +123,11 @@ public class CompanyMemberService {
     final var company = companyUtils.findCompanyBySlug(slug);
     final var requesterMember = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.hasAdministrativeAccess(requesterMember);
+    permissionsService.hasAdministrativeAccess(requesterMember);
 
     final var member = findCompanyMemberById(memberId);
 
-    this.valideNewRoleForMember(request.role());
+    this.validateNewRoleForMember(request.role());
 
     member.setRole(request.role());
 
@@ -145,7 +146,7 @@ public class CompanyMemberService {
     final var company = companyUtils.findCompanyBySlug(slug);
     final var requesterMember = companyMemberUtils.findCompanyMemberByUserAndCompany(userPrincipal.user().getId(), company.getId());
 
-    PermissionsService.hasAdministrativeAccess(requesterMember);
+    permissionsService.hasAdministrativeAccess(requesterMember);
 
     final var member = this.findCompanyMemberById(memberId);
     final var memberUser = member.getUser().getId();
@@ -201,7 +202,7 @@ public class CompanyMemberService {
         userPrincipal.user().getId(), company.getId()
     );
 
-    PermissionsService.hasAdministrativeAccess(memberCompany);
+    permissionsService.hasAdministrativeAccess(memberCompany);
 
     String rawText = extractTextFromFile(file);
     List<ParsedMember> parsed = llmParserService.extractMembers(rawText);
@@ -218,7 +219,7 @@ public class CompanyMemberService {
         continue;
       }
       try {
-        valideNewRoleForMember(p.role());
+        validateNewRoleForMember(p.role());
 
         final var user = User.builder()
             .fullName(p.fullName())
@@ -238,7 +239,7 @@ public class CompanyMemberService {
 
         companyMembersRepository.save(member);
         created++;
-      } catch (Exception e) {
+      } catch (ConflictException e) {
         skipped++;
         errors.add("Failed for " + p.email() + ": " + e.getMessage());
       }

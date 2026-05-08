@@ -10,19 +10,19 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PermissionsService {
 
-  public static void validateIsOwner(CompanyMember member) {
+  public void validateIsOwner(CompanyMember member) {
     if(member.getRole() != CompanyRole.OWNER) {
-      throw new AccessDeniedException("You don`t have permissions");
+      throw new AccessDeniedException("You don't have permissions");
     }
   }
 
-  public static void hasAdministrativeAccess(CompanyMember member) {
+  public void hasAdministrativeAccess(CompanyMember member) {
     if(member.getRole() != CompanyRole.OWNER && member.getRole() != CompanyRole.MANAGER && member.getRole() != CompanyRole.ADMIN) {
-      throw new AccessDeniedException("You don`t have permissions");
+      throw new AccessDeniedException("You don't have permissions");
     }
   }
 
-  public static boolean hasAdministrativeAccessBoolean(CompanyMember member) {
+  public boolean hasAdministrativeAccessBoolean(CompanyMember member) {
     return member.getRole() == CompanyRole.OWNER || member.getRole() == CompanyRole.MANAGER || member.getRole() == CompanyRole.ADMIN;
   }
 }

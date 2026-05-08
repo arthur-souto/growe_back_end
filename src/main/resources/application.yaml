@@ -34,6 +34,8 @@ app:
     url: ${FRONTEND_URL:http://localhost:5173}
   # Set to true in development/staging, false in production
   include-error-details: ${INCLUDE_ERROR_DETAILS:false}
+  cookie:
+    secure: ${COOKIE_SECURE:false}
 
 springdoc:
   swagger-ui:
