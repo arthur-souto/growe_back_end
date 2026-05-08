@@ -3,6 +3,9 @@ package br.com.growe.growe_backend.service;
 import br.com.growe.growe_backend.client.GroqClient;
 import br.com.growe.growe_backend.config.security.UserPrincipal;
 import br.com.growe.growe_backend.domain.Assessment;
+import br.com.growe.growe_backend.domain.AssessmentAnswer;
+import br.com.growe.growe_backend.domain.Competency;
+import br.com.growe.growe_backend.dtos.request.AssessmentAnswerRequest;
 import br.com.growe.growe_backend.dtos.request.ImproveCommentRequest;
 import br.com.growe.growe_backend.dtos.request.SubmitAssessmentRequest;
 import br.com.growe.growe_backend.dtos.response.AssessmentResponse;
@@ -11,7 +14,10 @@ import br.com.growe.growe_backend.dtos.response.ImproveCommentResponse;
 import br.com.growe.growe_backend.exceptions.AccessDeniedException;
 import br.com.growe.growe_backend.exceptions.ConflictException;
 import br.com.growe.growe_backend.exceptions.ResourceNotFoundException;
+import br.com.growe.growe_backend.repository.AssessmentAnswerRepository;
 import br.com.growe.growe_backend.repository.AssessmentRepository;
+import br.com.growe.growe_backend.repository.CompetencyRepository;
+import br.com.growe.growe_backend.repository.CycleCompetencyRepository;
 import br.com.growe.growe_backend.repository.EvaluationTaskRepository;
 import br.com.growe.growe_backend.rules.TaskStatus;
 import br.com.growe.growe_backend.utils.CompanyMemberUtils;
@@ -23,14 +29,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AssessmentService {
 
   private final AssessmentRepository assessmentRepository;
+  private final AssessmentAnswerRepository assessmentAnswerRepository;
   private final EvaluationTaskRepository evaluationTaskRepository;
+  private final CycleCompetencyRepository cycleCompetencyRepository;
+  private final CompetencyRepository competencyRepository;
   private final CompanyMemberUtils companyMemberUtils;
   private final PermissionsService permissionsService;
   private final CycleUtils cycleUtils;
@@ -75,21 +88,49 @@ public class AssessmentService {
       throw new ConflictException("Cycle is closed");
     }
 
+    final var cycleCompetencies = cycleCompetencyRepository.findAllByCycle_Id(task.getCycle().getId());
+    final Set<UUID> requiredIds = cycleCompetencies.stream()
+        .map(cc -> cc.getCompetency().getId())
+        .collect(Collectors.toSet());
+
+    final Set<UUID> providedIds = req.answers().stream()
+        .map(AssessmentAnswerRequest::competencyId)
+        .collect(Collectors.toSet());
+
+    if (!requiredIds.equals(providedIds)) {
+      throw new ConflictException("Answers must cover exactly the competencies defined for this cycle");
+    }
+
+    final Map<UUID, Competency> competencyById = cycleCompetencies.stream()
+        .collect(Collectors.toMap(cc -> cc.getCompetency().getId(), cc -> cc.getCompetency()));
+
     final var assessment = Assessment.builder()
         .cycle(task.getCycle())
         .evaluator(task.getEvaluator())
         .evaluated(task.getEvaluated())
-        .score(req.score())
         .comment(req.comment())
         .assessmentType(task.getAssessmentType())
         .task(task)
         .build();
 
+    assessmentRepository.save(assessment);
+
+    final List<AssessmentAnswer> answers = req.answers().stream()
+        .map(answerReq -> AssessmentAnswer.builder()
+            .assessment(assessment)
+            .competency(competencyById.get(answerReq.competencyId()))
+            .score(answerReq.score())
+            .comment(answerReq.comment())
+            .build())
+        .toList();
+
+    assessmentAnswerRepository.saveAll(answers);
+
     task.setStatus(TaskStatus.DONE);
     task.setCompletedAt(Instant.now());
     evaluationTaskRepository.save(task);
 
-    return new IdResponse(assessmentRepository.save(assessment).getId());
+    return new IdResponse(assessment.getId());
   }
 
   @Transactional(readOnly = true)
