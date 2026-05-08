@@ -8,6 +8,7 @@ import java.util.UUID;
 public record AssessmentAnswerResponse(
     UUID competencyId,
     String competencyName,
+    String competencyDescription,
     BigDecimal score,
     String comment
 ) {
@@ -15,6 +16,7 @@ public record AssessmentAnswerResponse(
     return new AssessmentAnswerResponse(
         answer.getCompetency().getId(),
         answer.getCompetency().getName(),
+        answer.getCompetency().getDescription(),
         answer.getScore(),
         answer.getComment()
     );

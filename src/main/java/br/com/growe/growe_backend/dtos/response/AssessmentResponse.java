@@ -12,6 +12,7 @@ import java.util.UUID;
 public record AssessmentResponse(
     UUID id,
     UUID cycleId,
+    String cycleName,
     ResumeMemberTaskResponse evaluator,
     ResumeMemberTaskResponse evaluated,
     BigDecimal avgScore,
@@ -37,6 +38,7 @@ public record AssessmentResponse(
     return new AssessmentResponse(
         assessment.getId(),
         assessment.getCycle().getId(),
+        assessment.getCycle().getName(),
         new ResumeMemberTaskResponse(
             assessment.getEvaluator().getId(),
             assessment.getEvaluator().getUser().getFullName(),

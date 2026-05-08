@@ -33,15 +33,16 @@ public class CompetencyService {
   private final CompanyUtils companyUtils;
   private final CompanyMemberUtils companyMemberUtils;
   private final CycleUtils cycleUtils;
-  private final PermissionsService permissionsService;
 
   private static final List<CompanyRole> ADMIN_ROLES = List.of(
       CompanyRole.ADMIN, CompanyRole.OWNER, CompanyRole.RH);
 
   @Transactional
   public IdResponse createCompetency(UserPrincipal userPrincipal, String slug, CreateCompetencyRequest req) {
+
     final var user = userPrincipal.user();
     final var company = companyUtils.findCompanyBySlug(slug);
+
     final var member = companyMemberUtils.findCompanyMemberByUserAndCompany(user.getId(), company.getId());
 
     if (!ADMIN_ROLES.contains(member.getRole())) {
@@ -64,8 +65,10 @@ public class CompetencyService {
 
   @Transactional(readOnly = true)
   public Page<CompetencyResponse> findAllByCompany(UserPrincipal userPrincipal, String slug, Pageable pageable) {
+
     final var user = userPrincipal.user();
     final var company = companyUtils.findCompanyBySlug(slug);
+
     companyMemberUtils.findCompanyMemberByUserAndCompany(user.getId(), company.getId());
 
     return competencyRepository.findAllByCompany_Id(company.getId(), pageable)
@@ -74,8 +77,10 @@ public class CompetencyService {
 
   @Transactional
   public void deleteCompetency(UserPrincipal userPrincipal, String slug, UUID competencyId) {
+
     final var user = userPrincipal.user();
     final var company = companyUtils.findCompanyBySlug(slug);
+
     final var member = companyMemberUtils.findCompanyMemberByUserAndCompany(user.getId(), company.getId());
 
     if (!ADMIN_ROLES.contains(member.getRole())) {
@@ -90,8 +95,10 @@ public class CompetencyService {
 
   @Transactional
   public IdResponse addToCycle(UserPrincipal userPrincipal, UUID cycleId, AddCompetencyToCycleRequest req) {
+
     final var user = userPrincipal.user();
     final var cycle = cycleUtils.findEvaluationCycleById(cycleId);
+
     final var member = companyMemberUtils.findCompanyMemberByUserAndCompany(
         user.getId(), cycle.getCompany().getId());
 
@@ -116,8 +123,10 @@ public class CompetencyService {
 
   @Transactional
   public void removeFromCycle(UserPrincipal userPrincipal, UUID cycleId, UUID competencyId) {
+
     final var user = userPrincipal.user();
     final var cycle = cycleUtils.findEvaluationCycleById(cycleId);
+
     final var member = companyMemberUtils.findCompanyMemberByUserAndCompany(
         user.getId(), cycle.getCompany().getId());
 
@@ -129,13 +138,14 @@ public class CompetencyService {
   }
 
   @Transactional(readOnly = true)
-  public List<CompetencyResponse> findAllByCycle(UserPrincipal userPrincipal, UUID cycleId) {
+  public Page<CompetencyResponse> findAllByCycle(UserPrincipal userPrincipal, UUID cycleId, Pageable pageable) {
+
     final var user = userPrincipal.user();
     final var cycle = cycleUtils.findEvaluationCycleById(cycleId);
+
     companyMemberUtils.findCompanyMemberByUserAndCompany(user.getId(), cycle.getCompany().getId());
 
-    return cycleCompetencyRepository.findAllByCycle_Id(cycleId).stream()
-        .map(cc -> CompetencyResponse.toResponse(cc.getCompetency()))
-        .toList();
+    return cycleCompetencyRepository.findAllByCycle_Id(cycleId, pageable)
+        .map(cc -> CompetencyResponse.toResponse(cc.getCompetency()));
   }
 }

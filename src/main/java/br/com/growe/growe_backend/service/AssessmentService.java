@@ -5,6 +5,7 @@ import br.com.growe.growe_backend.config.security.UserPrincipal;
 import br.com.growe.growe_backend.domain.Assessment;
 import br.com.growe.growe_backend.domain.AssessmentAnswer;
 import br.com.growe.growe_backend.domain.Competency;
+import br.com.growe.growe_backend.domain.CycleCompetency;
 import br.com.growe.growe_backend.dtos.request.AssessmentAnswerRequest;
 import br.com.growe.growe_backend.dtos.request.ImproveCommentRequest;
 import br.com.growe.growe_backend.dtos.request.SubmitAssessmentRequest;
@@ -43,7 +44,6 @@ public class AssessmentService {
   private final AssessmentAnswerRepository assessmentAnswerRepository;
   private final EvaluationTaskRepository evaluationTaskRepository;
   private final CycleCompetencyRepository cycleCompetencyRepository;
-  private final CompetencyRepository competencyRepository;
   private final CompanyMemberUtils companyMemberUtils;
   private final PermissionsService permissionsService;
   private final CycleUtils cycleUtils;
@@ -89,20 +89,21 @@ public class AssessmentService {
     }
 
     final var cycleCompetencies = cycleCompetencyRepository.findAllByCycle_Id(task.getCycle().getId());
+
     final Set<UUID> requiredIds = cycleCompetencies.stream()
         .map(cc -> cc.getCompetency().getId())
-        .collect(Collectors.toSet());
+            .collect(Collectors.toSet());
 
     final Set<UUID> providedIds = req.answers().stream()
         .map(AssessmentAnswerRequest::competencyId)
-        .collect(Collectors.toSet());
+            .collect(Collectors.toSet());
 
     if (!requiredIds.equals(providedIds)) {
       throw new ConflictException("Answers must cover exactly the competencies defined for this cycle");
     }
 
     final Map<UUID, Competency> competencyById = cycleCompetencies.stream()
-        .collect(Collectors.toMap(cc -> cc.getCompetency().getId(), cc -> cc.getCompetency()));
+        .collect(Collectors.toMap(cc -> cc.getCompetency().getId(), CycleCompetency::getCompetency));
 
     final var assessment = Assessment.builder()
         .cycle(task.getCycle())

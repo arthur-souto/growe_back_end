@@ -74,10 +74,11 @@ public class CompetencyController {
   }
 
   @GetMapping("/cycle/{cycleId}")
-  public List<CompetencyResponse> findAllByCycle(
+  public Page<CompetencyResponse> findAllByCycle(
       @AuthenticationPrincipal UserPrincipal userPrincipal,
-      @PathVariable UUID cycleId
+      @PathVariable UUID cycleId,
+      Pageable pageable
   ) {
-    return competencyService.findAllByCycle(userPrincipal, cycleId);
+    return competencyService.findAllByCycle(userPrincipal, cycleId, pageable);
   }
 }
