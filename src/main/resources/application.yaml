@@ -48,4 +48,5 @@ groq:
     url: ${GROQ_API_URL}
     key: ${GROQ_API_KEY}
     model: ${GROQ_API_MODEL}
+    model-text: ${GROQ_API_MODEL_TEXT}
 

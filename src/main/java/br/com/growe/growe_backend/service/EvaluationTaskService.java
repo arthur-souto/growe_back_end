@@ -89,6 +89,7 @@ public class EvaluationTaskService {
   }
 
   private Page<EvaluationTaskResponse> getTasksByRole(CompanyMember member, UUID cycleId, Pageable pageable) {
+
     if(PermissionsService.hasAdministrativeAccessBoolean(member)) {
       return evaluationTaskRepository
           .findAllByCycle_Id(cycleId, pageable)
@@ -101,10 +102,5 @@ public class EvaluationTaskService {
         pageable
     ).map(EvaluationTaskResponse::toResponse);
   }
-
-
-
-
-
 
 }

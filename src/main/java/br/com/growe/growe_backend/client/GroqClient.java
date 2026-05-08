@@ -29,6 +29,9 @@ public class GroqClient {
   @Value("${groq.api.model}")
   private String model;
 
+  @Value("${groq.api.model-text}")
+  private String modelText;
+
   private static final int MAX_RETRIES_CALL = 3;
   private static final int START_ATTEMPT_VALUE = 0;
   private static final int CHOICE_INDEX = 0;
@@ -65,13 +68,11 @@ public class GroqClient {
           );
         }
 
-        log.info("Groq request completed successfully on attempt {}", attempt + 1);
         return extractContent(response);
 
       } catch (HttpClientErrorException e) {
         if (e.getStatusCode().value() == HttpStatus.TOO_MANY_REQUESTS.value()) {
           attempt++;
-          log.warn("Groq rate limit hit, attempt {}/{}", attempt, maxRetries);
           try {
             Thread.sleep(SLEEP_TEMP * attempt); // 2s, 4s, 6s
           } catch (InterruptedException ie) {
@@ -83,7 +84,6 @@ public class GroqClient {
             );
           }
         } else {
-          log.error("Groq error status {}: {}", e.getStatusCode(), e.getMessage());
           throw new BusinessException(
               "Groq error: " + e.getMessage(),
               HttpStatus.BAD_GATEWAY,
@@ -97,6 +97,67 @@ public class GroqClient {
         "Groq rate limit exceeded after " + maxRetries + " retries",
         HttpStatus.TOO_MANY_REQUESTS,
         "ERROR_RATE_LIMIT"
+    );
+  }
+
+  public String completeText(String prompt) {
+    int maxRetries = MAX_RETRIES_CALL;
+    int attempt = START_ATTEMPT_VALUE;
+
+    while (attempt < maxRetries) {
+      try {
+        Map<String, Object> body = Map.of(
+                "model", modelText,
+                "messages", List.of(
+                        Map.of("role", "user", "content", prompt)
+                )
+        );
+
+        ResponseEntity<Map> response = groqRestTemplate.postForEntity(
+                apiUrl + "/chat/completions",
+                new HttpEntity<>(body),
+                Map.class
+        );
+
+        if (response.getBody() == null) {
+          throw new BusinessException(
+                  "Empty response from Groq",
+                  HttpStatus.BAD_GATEWAY,
+                  "ERROR_LLM"
+          );
+        }
+
+        return extractContent(response);
+
+      } catch (HttpClientErrorException e) {
+        if (e.getStatusCode().value() == HttpStatus.TOO_MANY_REQUESTS.value()) {
+          attempt++;
+          log.warn("Groq rate limit hit, attempt {}/{}", attempt, maxRetries);
+          try {
+            Thread.sleep(SLEEP_TEMP * attempt); // 2s, 4s, 6s
+          } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            throw new BusinessException(
+                    "Request interrupted",
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "ERROR_INTERRUPTED"
+            );
+          }
+        } else {
+          log.error("Groq error status {}: {}", e.getStatusCode(), e.getMessage());
+          throw new BusinessException(
+                  "Groq error: " + e.getMessage(),
+                  HttpStatus.BAD_GATEWAY,
+                  "ERROR_LLM"
+          );
+        }
+      }
+    }
+
+    throw new BusinessException(
+            "Groq rate limit exceeded after " + maxRetries + " retries",
+            HttpStatus.TOO_MANY_REQUESTS,
+            "ERROR_RATE_LIMIT"
     );
   }
 
