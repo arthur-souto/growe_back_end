@@ -7,8 +7,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -38,11 +38,11 @@ public class Assessment {
   @JoinColumn(name = "evaluated_id", nullable = false)
   private CompanyMember evaluated;
 
-  @Column(nullable = false, precision = 2, scale = 1)
-  private BigDecimal score;
-
-  @Column(length = 500, nullable = false)
+  @Column(length = 500)
   private String comment;
+
+  @OneToMany(mappedBy = "assessment", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<AssessmentAnswer> answers;
 
   @Enumerated(EnumType.STRING)
   @Column(length = 10, nullable = false)

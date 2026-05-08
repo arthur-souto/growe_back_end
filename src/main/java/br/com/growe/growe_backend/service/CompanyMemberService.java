@@ -50,6 +50,7 @@ public class CompanyMemberService {
   private final CompanyUtils companyUtils;
   private final CompanyMemberUtils companyMemberUtils;
   private final PermissionsService permissionsService;
+  private final ExtractService extractService;
 
   private static final int START_SKIPPED_VALUE = 0;
   private static final int START_CREATED_VALUE = 0;
@@ -156,39 +157,6 @@ public class CompanyMemberService {
   }
 
 
-  private String extractTextFromFile(MultipartFile file) {
-
-    if(file == null) {
-      throw new BusinessException("File is null", HttpStatus.BAD_REQUEST, "NULL_EXCEPTION");
-    }
-
-    var filename = file.getOriginalFilename();
-
-    if(filename == null) {
-      throw new BusinessException("File Name is null", HttpStatus.BAD_REQUEST, "NULL_EXCEPTION");
-    }
-
-    try {
-      if (filename.toLowerCase().endsWith(".pdf")) {
-        try (PDDocument doc = Loader.loadPDF(
-            new RandomAccessReadBuffer(file.getBytes()))) {
-          PDFTextStripper stripper = new PDFTextStripper();
-          stripper.setSortByPosition(true);
-          return stripper.getText(doc);
-        }
-      } else if (filename.toLowerCase().endsWith(".docx")) {
-        try (XWPFDocument doc = new XWPFDocument(file.getInputStream());
-             XWPFWordExtractor extractor = new XWPFWordExtractor(doc)) {
-          return extractor.getText();
-        }
-      } else {
-        return new String(file.getBytes(), StandardCharsets.UTF_8);
-      }
-    } catch (IOException e) {
-      throw new BusinessException("Failed to read file", HttpStatus.BAD_REQUEST, "ERROR_FILE");
-    }
-  }
-
   @Transactional
   public ImportSummaryResponse importMembersFromFile(
       String slug,
@@ -204,7 +172,7 @@ public class CompanyMemberService {
 
     permissionsService.hasAdministrativeAccess(memberCompany);
 
-    String rawText = extractTextFromFile(file);
+    String rawText = extractService.extractTextFromFile(file);
     List<ParsedMember> parsed = llmParserService.extractMembers(rawText);
 
     int created = START_CREATED_VALUE;
