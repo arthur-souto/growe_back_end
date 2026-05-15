@@ -4,10 +4,11 @@ import br.com.growe.growe_backend.domain.Assessment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -23,7 +24,11 @@ public interface AssessmentRepository extends JpaRepository<Assessment, UUID> {
 
   Page<Assessment> findAllByEvaluator_Id(UUID evaluatorId, Pageable pageable);
 
-  Optional<Assessment> findByCycle_IdAndEvaluator_IdAndEvaluated_Id(UUID cycleId, UUID evaluatorId, UUID evaluatedId);
-
-  Optional<Assessment> findByTask_Id(UUID taskId);
+  @Query("""
+    SELECT a FROM Assessment a
+    WHERE a.evaluated.id = :memberId
+      AND a.comment IS NOT NULL AND TRIM(a.comment) <> ''
+    ORDER BY a.createdAt DESC
+""")
+  List<Assessment> findAssessmentCommentsForMember(@Param("memberId") UUID memberId, Pageable pageable);
 }
